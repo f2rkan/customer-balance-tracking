@@ -12,7 +12,7 @@ This project aims to show the date when a customer reaches the maximum debt. Use
 - Spring Boot
 - Docker
 - PostgreSQL
-- JPA (Java Persistence API)
+- Spring Data JPA
 - Thymeleaf
 
 ## Database Structure
@@ -99,7 +99,7 @@ To perform operations on the PostgreSQL database within the Docker container, fo
    SELECT * FROM musteri_fatura_table;
    ```
 
-5. You can execute queries to test the JPA operations implemented in Java. Here’s an example query to calculate the maximum debt date for each customer:
+5. You can execute queries to test the Spring Data JPA operations implemented in Java. Here’s an example query to calculate the maximum debt date for each customer:
    ```sql
    WITH BorcHesabi AS (
        SELECT 
