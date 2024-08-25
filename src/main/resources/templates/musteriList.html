@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Müşteri Listesi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        a {
+            text-decoration: none;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Müşteri Listesi</h1>
+    <table>
+        <tr>
+            <th>Müşteri ID</th>
+            <th>Unvan</th>
+            <th>Detaylar</th>
+        </tr>
+        <tr th:each="musteri : ${musteriler}">
+            <td th:text="${musteri.id}"></td>
+            <td th:text="${musteri.unvan}"></td>
+            <td>
+                <a th:href="@{/musteri/max-borc-tarihi(musteriId=${musteri.id})}">Maksimum Borç Tarihi Görüntüle</a>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
