@@ -81,7 +81,7 @@ To perform operations on the PostgreSQL database within the Docker container, fo
    **Example output:**
    ```
                   List of relations
-   Schema |         Name         | Type  |    Owner     
+    Schema |         Name         | Type  |    Owner     
    --------+----------------------+-------+--------------
     public | fatura               | table | yourusername
     public | musteri              | table | yourusername
