@@ -63,6 +63,8 @@ This project aims to show the date when a customer reaches the maximum debt. Use
    ```
    http://localhost:8080/musteri/list
    ```
+   
+---
 
 ## PostgreSQL Operations in Docker Container
 
@@ -101,37 +103,76 @@ To perform operations on the PostgreSQL database within the Docker container, fo
 
 5. You can execute queries to test the Spring Data JPA operations implemented in Java. Here’s an example query to calculate the maximum debt date for each customer:
    ```sql
-   WITH BorcHesabi AS (
+   WITH FaturaData AS (
        SELECT 
-           f.musteri_id,
-           f.fatura_tarihi,
-           SUM(f.fatura_tutari) OVER (PARTITION BY f.musteri_id ORDER BY f.fatura_tarihi ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS toplam_borc
+           musteri_id,
+           fatura_tarihi AS tarih,
+           fatura_tutari AS tutar,
+           1 AS is_fatura
        FROM 
-           musteri_fatura_table f
+           musteri_fatura_table
+
+       UNION ALL
+
+       SELECT 
+           musteri_id,
+           odeme_tarihi AS tarih,
+           -fatura_tutari AS tutar,
+           0 AS is_fatura
+       FROM 
+           musteri_fatura_table
        WHERE 
-           f.odeme_tarihi IS NULL 
+           odeme_tarihi IS NOT NULL
+   ),
+   BorcluTarihleri AS (
+       SELECT 
+           musteri_id,
+           tarih,
+           SUM(tutar) OVER (PARTITION BY musteri_id ORDER BY tarih) AS toplam_borc
+       FROM 
+           FaturaData
+   ),
+   MaxBorcluTarihleri AS (
+       SELECT 
+           musteri_id,
+           tarih AS max_borc_tarihi,
+           toplam_borc,
+           ROW_NUMBER() OVER (PARTITION BY musteri_id ORDER BY toplam_borc DESC) AS rn
+       FROM 
+           BorcluTarihleri
+       WHERE 
+           toplam_borc = (
+               SELECT MAX(toplam_borc) 
+               FROM BorcluTarihleri AS sub 
+               WHERE sub.musteri_id = BorcluTarihleri.musteri_id
+           )
    )
    SELECT 
-       musteri_id,
-       fatura_tarihi AS max_borc_tarihi,
-       toplam_borc
+       m.musteri_id,
+       t.unvan,
+       max_borc_tarihi,
+       toplam_borc AS max_toplam_borc
    FROM 
-       BorcHesabi
+       MaxBorcluTarihleri m
+   JOIN 
+       musteri_tanim_table t 
+   ON 
+       m.musteri_id = t.id
    WHERE 
-       toplam_borc = (
-           SELECT MAX(toplam_borc) 
-           FROM BorcHesabi bh 
-           WHERE bh.musteri_id = BorcHesabi.musteri_id
-       )
+       rn = 1
    ORDER BY 
-       musteri_id; 
+       m.musteri_id;
    ```
 
    **Example Output:**
    ```
-    musteri_id |   max_borc_tarihi   | toplam_borc 
-   ------------+---------------------+-------------
-        127098 | 2022-05-18 00:00:00 |       27000
-        127747 | 2022-06-30 00:00:00 |  6873915.13
-   (2 rows)
+    musteri_id |         unvan         |   max_borc_tarihi   | max_toplam_borc 
+   ------------+-----------------------+---------------------+-----------------
+        127098 | Nano Bilgi Sistemleri | 2021-04-30 00:00:00 |      1086700.69
+        127269 | Veri Bilisim LTD      | 2021-12-24 00:00:00 |           46716
+        127747 | Asya Halicilik AS     | 2022-06-30 00:00:00 |      6873915.13
+        129914 | Expert Gümrükleme     | 2022-01-07 00:00:00 |           43260
+   (4 rows)
    ```
+
+--- 
