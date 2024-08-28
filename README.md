@@ -174,5 +174,6 @@ To perform operations on the PostgreSQL database within the Docker container, fo
         129914 | Expert Gümrükleme     | 2022-01-07 00:00:00 |           43260
    (4 rows)
    ```
+   
 
 --- 
