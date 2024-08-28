@@ -175,5 +175,4 @@ To perform operations on the PostgreSQL database within the Docker container, fo
    (4 rows)
    ```
 
-
 --- 
